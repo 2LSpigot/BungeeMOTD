@@ -1,0 +1,71 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Grant execute permission to gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Extract version from build.gradle
+        id: extract_version
+        run: |
+          VERSION=$(grep '^version' build.gradle | awk '{print $3}' | tr -d "'")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Get short commit hash
+        id: get_commit_hash
+        run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Create Git Tag
+        run: |
+          TAG_NAME="${{ env.VERSION }}-${{ env.COMMIT_HASH }}"
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG_NAME" -m "Release version $TAG_NAME"
+          git push origin "$TAG_NAME"
+        env:
+          VERSION: ${{ env.VERSION }}
+          COMMIT_HASH: ${{ env.COMMIT_HASH }}
+
+      - name: Generate Release Notes
+        id: generate_release_notes
+        run: |
+          COMMITS=$(git log --oneline)
+          
+          # Generate release notes
+          echo "## Changelog" > release_notes.md
+          echo "" >> release_notes.md
+          echo "$COMMITS" >> release_notes.md
+          cat release_notes.md
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "${{ env.VERSION }}-${{ env.COMMIT_HASH }}"
+          files: build/libs/*.jar
+          body_path: release_notes.md
+
+      - name: Clean up
+        run: rm release_notes.md

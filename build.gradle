@@ -1,0 +1,62 @@
+plugins {
+    id 'java'
+}
+
+group = 'dev._2lstudios'
+version = '0.2.8'
+
+ext {
+    author = '2LS'
+    projectName = 'CleanMOTD'
+    url = 'https://www.spigotmc.org/resources/58268/'
+    description = 'Simple MOTD customization plugin'
+}
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+// Repositories
+repositories {
+    mavenCentral()
+    maven {
+        name = 'spigot-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        name = 'bungeecord-repo'
+        url = 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
+    maven {
+        name = 'dmulloy2-repo'
+        url = 'https://repo.dmulloy2.net/repository/public/'
+    }
+    maven {
+        name = 'papermc'
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+}
+
+// Dependencies
+dependencies {
+    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'com.velocitypowered:velocity-api:3.1.1'
+    compileOnly 'io.netty:netty-all:4.1.63.Final'
+    compileOnly 'com.comphenix.protocol:ProtocolLib:4.6.0'
+    compileOnly 'net.md-5:bungeecord-api:1.16-R0.5-SNAPSHOT'
+    annotationProcessor("com.velocitypowered:velocity-api:3.1.1")
+}
+
+// Ensure yml has the version and other properties defined here
+processResources {
+    filesMatching('**/*.yml') {
+        expand(project.properties)  // Expands all project properties including 'author', 'version', etc.
+    }
+}
+
+// Create a fat jar at: build/libs/
+jar {
+    from {
+        duplicatesStrategy DuplicatesStrategy.INCLUDE // primarily META-INF duplicates
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
