@@ -154,6 +154,8 @@ public class Variables {
 				return (int) (Math.floor(Math.random() * fakePlayersAmount) + 1);
 			case "DIVISION":
 				return players / fakePlayersAmount;
+			case "MULTIPLICATION":
+				return players * fakePlayersAmount;
 			default:
 				return 0;
 		}
