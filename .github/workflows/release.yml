@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '11'
-          distribution: 'openjdk'
+          distribution: 'temurin'  # Używa Eclipse Temurin, popularna dystrybucja OpenJDK
 
       - name: Build with Gradle
         run: ./gradlew build
