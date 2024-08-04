@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '11'
-          distribution: 'temurin' 
+          distribution: 'temurin'
 
       - name: Grant execute permission to gradlew
         run: chmod +x ./gradlew
@@ -25,10 +25,22 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
+      - name: Extract version from build.gradle
+        id: extract_version
+        run: |
+          VERSION=$(grep '^version' build.gradle | awk '{print $3}' | tr -d "'")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Create Git Tag
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ env.VERSION }}" -m "Release version ${{ env.VERSION }}"
+          git push origin "v${{ env.VERSION }}"
+
       - name: Generate Release Notes
         id: generate_release_notes
         run: |
-          # Fetch all commits on master
           COMMITS=$(git log --oneline)
           
           # Generate release notes
@@ -43,6 +55,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          tag_name: "v${{ env.VERSION }}"
           files: build/libs/*.jar
           body_path: release_notes.md
 
