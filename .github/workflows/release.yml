@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '11'
-          distribution: 'temurin'
+          distribution: 'temurin' 
 
       - name: Grant execute permission to gradlew
         run: chmod +x ./gradlew
@@ -28,10 +28,8 @@ jobs:
       - name: Generate Release Notes
         id: generate_release_notes
         run: |
-          # Fetch commits since last tag
-          git fetch --tags
-          LAST_TAG=$(git describe --tags --abbrev=0)
-          COMMITS=$(git log ${LAST_TAG}..HEAD --oneline)
+          # Fetch all commits on master
+          COMMITS=$(git log --oneline)
           
           # Generate release notes
           echo "## Changelog" > release_notes.md
