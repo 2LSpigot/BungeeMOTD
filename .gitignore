@@ -4,3 +4,27 @@
 .factorypath
 .classpath
 /target
+
+# .gitignore for a Gradle project
+
+# Ignore Gradle build artifacts
+/build/
+/out/
+/target/
+
+# Ignore Gradle dependency caches
+.gradle/
+/build/
+
+# Ignore IDE-specific files
+/.idea/
+/*.iml
+/.vscode/
+/*.swp
+
+# Ignore log files
+*.log
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
